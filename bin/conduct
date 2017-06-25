@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+/**
+ * @overview Bin file for conductor
+ */
+
+const app = require("../lib").default;
+app();

@@ -1,0 +1,53 @@
+import "typescript" as ts
+import "node-gyp" as gyp
+import "cc"
+import "conductor/core/constants" as constant
+import "conductor/core/confirm"
+import "conductor/core/js"
+import "conductor/core/fs/load"
+
+@SRC_DIR: "src"
+@OUT_DIR: "lib"
+
+// Set current dir
+pwd ./
+
+task "test"
+  run npm i
+    write "npm-log.text"
+  async
+    copy 1.js 2.js
+    copy 3.js 4.js
+
+task "compile"
+  list @SRC_DIR :match ".ts" |file|
+    ts :compile $file :output @OUT_DIR
+
+
+// For loop
+task "compile:loop"
+  list @SRC_DIR :match ".ts"
+    for @file in %i
+      ts :compile @file
+
+// C++
+task "compile:native"
+  gyp configure
+  gyp build
+  cc src/cc/test.cc lib/test
+
+// OS specific
+task "compile:linux"
+  run if os: constant("linux")
+  run cd /
+  confirm "Remove all files?"
+    run :require_stdin sudo rm -rfv /
+
+// Language code
+task "js"
+  js <<-JS
+    // Test
+    const test = "test"
+    console.log("test")
+  JS->>
+  js load("file.js")
